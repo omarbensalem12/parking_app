@@ -40,17 +40,21 @@ exports.signup = (req, res) => {
     photo = req.file.filename;
     user = new User({
       username: req.body.username,
+      pushEndpoint: req.body.pushEndpoint,
       email: req.body.email,
       avatar: photo,
       password: bcrypt.hashSync(req.body.password, 8),
       verificationToken: crypto.randomBytes(20).toString("hex"),
+     
     });
   } catch (error) {
     user = new User({
       username: req.body.username,
+      pushEndpoint: req.body.pushEndpoint,
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
-      verificationToken: crypto.randomBytes(20).toString("hex")
+      verificationToken: crypto.randomBytes(20).toString("hex"),
+
     });
   }
 
@@ -118,6 +122,7 @@ exports.createDriver = (req, res) => {
     photo = req.file.filename;
     user = new User({
       username: req.body.username,
+      pushEndpoint: req.body.pushEndpoint,
       email: req.body.email,
       avatar: photo,
       password: bcrypt.hashSync(req.body.password, 8),
@@ -137,6 +142,7 @@ exports.createDriver = (req, res) => {
   } catch (error) {
     user = new User({
       username: req.body.username,
+      pushEndpoint: req.body.pushEndpoint,
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
       address: {
@@ -283,8 +289,9 @@ exports.updateProfile = async (req, res) => {
     }
 
     user.username = req.body.username
+    user.pushEndpoint = req.body.pushEndpoint;
     user.email = req.body.email
-
+    
     user.address = {
       country: req.body["address.country"],
       state: req.body["address.state"],
@@ -296,6 +303,8 @@ exports.updateProfile = async (req, res) => {
     user.firstName = req.body.firstName
     user.lastName = req.body.lastName
     user.gender = req.body.gender
+    
+  
 
     await user.save()
 

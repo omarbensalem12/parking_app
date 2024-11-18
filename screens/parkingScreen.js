@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import 'intl-pluralrules';
 import config from '../config';
 import Reservation from './reservationScreen';
-import ReservationList from './reservationListScreen';
+import Places from './placesScreen';
 import { Linking } from 'react-native';
 
 
@@ -41,7 +41,8 @@ export default function ParkingMap({ navigation }) {
 
 
     const [showReservatioList, setShowReservatioList] = useState(false);
-
+    const [showReservation, setShowReservation] = useState(false);
+    const [showPlaces, setShowPlaces] = useState(false);
 
 
 
@@ -241,12 +242,31 @@ export default function ParkingMap({ navigation }) {
                         <Pressable
                             style={[styles.button, styles.buttonOpen]}
                             onPress={() => {
-                                setShowParking(false); setTimeout(() => {
+                                setShowParking(false); 
+                                setShowReservation(true);
+                                setShowPlaces(false);
+                                setTimeout(() => {
                                     setSelectedParkingIndex(-1);
                                 }, 500); console.log(selectedParkingIndex); setSelectedparking(lamppostsData[selectedParkingIndex])
                             }}>
                             <Text style={styles.text}>{t("book")}</Text>
                         </Pressable>
+                        <Pressable
+    style={[styles.button, styles.buttonOpen]}
+    onPress={() => {
+        setShowReservation(false);
+        setShowPlaces(true);
+        setShowParking(false); 
+        setTimeout(() => {
+            setSelectedParkingIndex(-1);
+        }, 500); 
+        console.log(selectedParkingIndex); 
+        setSelectedparking(lamppostsData[selectedParkingIndex]);
+    }}
+>
+    <Text style={styles.text}>{t("places disponibles")}</Text>
+</Pressable>
+
 
                         <Pressable
     style={[styles.button, styles.buttonOpen]}
@@ -298,16 +318,22 @@ export default function ParkingMap({ navigation }) {
             </Modal>
 
             {
-                selectedparking && (
+                selectedparking && showReservation && (
                     <Reservation setNoParking={setNoParking} selectedparking={selectedparking} />
                 )
             }
 
             {
-                (!selectedparking && !showReservatioList) &&
+                selectedparking && showPlaces &&  (
+                    <Places setNoParking={setNoParking} selectedparking={selectedparking} />
+                )
+            }
+
+            {
+                (!selectedparking    && !showReservatioList) &&
                 <View>
-                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginRight: 10 }} >
-                        <Button
+                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginRight: 10 ,marginLeft :10}} >
+                        {/* <Button
                             style={styles.backButton}
                             labelStyle={{ color: "#FFF" }}
                             onPress={() => {
@@ -315,13 +341,13 @@ export default function ParkingMap({ navigation }) {
                             }}
                         >
                             {t("Resevations")}
-                        </Button>
-                        <View style={{ paddingTop: 20, display: "flex", alignItems: "center" }}>
+                        </Button> */}
+                        <View style={{ flex: 1, paddingTop: 30, display: "flex", alignItems: "center" }}>
                 <Text>{searchRange} Km</Text>
                 <Slider
                    onValueChange={(value) => { setSearchRange(value) }}  
                    onSlidingComplete={refetch}
-                   style={{ width: 200, height: 40 }}
+                   style={{ width: "100%", height: 40 }}
                     minimumValue={1}
                     maximumValue={20}
                     step={1}  
@@ -389,10 +415,6 @@ export default function ParkingMap({ navigation }) {
                     </MapView>
                 </View>
 
-            }
-
-            {
-                showReservatioList && <ReservationList hide={() => { setShowReservatioList(false) }} />
             }
 
         </View>

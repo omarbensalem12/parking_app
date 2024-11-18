@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
+import { FontAwesome } from "@expo/vector-icons"; 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Entypo } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -17,8 +17,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMyContext } from "./MyContext";
 import LanguageSelectionScreen from "./screens/LanguageSelectionScreen";
 import 'intl-pluralrules';
-
-const StackNavigator = () => {
+import TimerPage from "./screens/TimerPage";
+import ReservationListScreen from "./screens/reservationListScreen";
+import parkingScreen from "./screens/parkingScreen";
+import menu from "./screens/menu";
+import ReservationList from "./screens/reservationListScreen";
+const StackNavigator = ({ navigation }) => {
   const { t, i18n } = useTranslation();
   const { myValue, updateMyValue } = useMyContext();
   const Stack = createNativeStackNavigator();
@@ -93,7 +97,24 @@ const StackNavigator = () => {
                 ),
             }}
           />
+        <Tab.Screen
+  name="Reservation"
+  component={ReservationListScreen}
+  options={{
+    tabBarLabel: t("Resevations"),
+    tabBarLabelStyle: { color: "black" },
+    headerShown: false,
+    tabBarIcon: ({ focused }) =>
+    focused ? (
+      <FontAwesome name="calendar" size={24} color="black" /> // Changez l'icône en 'calendar' de la bibliothèque FontAwesome
+    ) : (
+      <FontAwesome name="calendar" size={24} color="black" />
+    ),
+                
+  }}
+/>
         </Tab.Navigator>
+        
       </>
 
     );
@@ -128,7 +149,7 @@ const StackNavigator = () => {
           component={SignupContinue}
           options={{ headerShown: false }}
         />
-
+<Stack.Screen name="TimerPage" component={TimerPage} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -6,8 +6,13 @@ const http = require('http');
 const socketIO = require('socket.io');
 const dbConfig = require("./app/config/db.config");
 const morgan = require('morgan')
+const ObjectId = require('mongodb').ObjectId;
+const cron1 = require('node-cron');
+const db = require("./app/models");
 
-
+const Parking = db.parking
+const Reservation = db.reservation
+const ParkingSpot = db.parkingSpot
 const app = express();
 app.use(cors({ origin: '*' }));
 
@@ -22,10 +27,10 @@ const io = socketIO(server, {
     methods: ["GET", "POST", "OPTIONS"]
   }
 });
+
+
+
 const imageDirectory = path.join(__dirname, 'app/uploads');
-
-
-
 
 /* for Angular Client (withCredentials) */
 // app.use(
@@ -49,7 +54,7 @@ app.use(
   })
 );
 
-const db = require("./app/models");
+
 require("./app/routes/country.routes")(app);
 const { error } = require("console");
 const Role = db.role;
@@ -86,8 +91,6 @@ app.get('/api/images/:filename', (req, res) => {
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/parking.routes")(app);
-
-
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {  // Change this line
@@ -140,4 +143,43 @@ function initial() {
       });
     }
   });
+}
+io.on('connection', (socket) => {
+  console.log('Nouvelle connexion WebSocket');
+
+
+  notification();
+
+  const cronJob = cron1.schedule('* * * * *', () => {
+    notification(); 
+  });
+
+  socket.on('disconnect', () => {
+    cronJob.stop();
+  });
+});
+
+async function notification() {
+  try {
+    const soonReservations = await Reservation.find({
+    });
+
+    const currentTime = new Date();
+
+    for (const reservation of soonReservations) {
+      const timeDifference = reservation.startDate - currentTime;
+      const notificationThreshold = 30 * 60000;
+      const notificationWindow = 60000; 
+
+      if (timeDifference > notificationThreshold - notificationWindow && 
+          timeDifference < notificationThreshold + notificationWindow) {
+        io.emit('toastActivated');
+        console.log('Notification envoyée pour la réservation :', reservation._id);
+      }
+    }
+
+    console.log('Notifications mises à jour avec succès.');
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des notifications :', error);
+  }
 }
